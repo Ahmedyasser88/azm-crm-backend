@@ -51,6 +51,7 @@ internal sealed class IdentityService(
         {
             Id = Guid.CreateVersion7(),
             UserName = username,
+            FullName = username,
             Email = email,
             MobileNumber = mobileNumber,
             EmailConfirmed = false
@@ -105,6 +106,13 @@ internal sealed class IdentityService(
             CreatedByIp = ipAddress
         };
 
+        // Add explicitly via the DbSet rather than only the in-memory `user.RefreshTokens`
+        // navigation collection: RefreshToken.Id is client-generated (Guid.CreateVersion7()),
+        // and an entity reached only through a tracked parent's navigation — never passed to
+        // Add()/Attach() itself — gets its initial EntityState inferred from whether its key
+        // already looks set. Since it does, EF marks it Modified instead of Added and emits an
+        // UPDATE for a row that doesn't exist yet (0 rows affected -> DbUpdateConcurrencyException).
+        context.RefreshTokens.Add(refreshTokenEntity);
         user.RefreshTokens.Add(refreshTokenEntity);
         user.LastLoginOn = DateTime.UtcNow;
 
@@ -165,6 +173,8 @@ internal sealed class IdentityService(
             CreatedByIp = ipAddress
         };
 
+        // Same explicit-Add reasoning as LoginAsync above.
+        context.RefreshTokens.Add(newRefreshTokenEntity);
         user.RefreshTokens.Add(newRefreshTokenEntity);
         await context.SaveChangesAsync(ct);
 
