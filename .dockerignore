@@ -1,0 +1,122 @@
+# ===========================================
+# .dockerignore for Azm CRM
+# Root directory context
+# ===========================================
+
+# Git
+.git/
+.gitignore
+.gitattributes
+**/.git/
+**/.gitignore
+
+# Docker files (don't copy to container)
+**/Dockerfile*
+**/docker-compose*
+**/.dockerignore
+Docker/
+!Docker/scripts/
+
+# IDEs and editors
+**/.vs/
+**/.vscode/
+**/.idea/
+**/*.user
+**/*.suo
+**/*.DotSettings.user
+*.sln.iml
+*.userosscache
+*.sln.docstates
+
+# Build artifacts (CRITICAL - prevents Windows paths issue)
+**/bin/
+**/obj/
+**/out/
+**/publish/
+[Dd]ebug/
+[Rr]elease/
+**/*.dll
+**/*.exe
+**/*.pdb
+**/project.lock.json
+**/project.fragment.lock.json
+**/artifacts/
+
+# NuGet
+**/.nuget/
+**/packages/
+**/*.nupkg
+**/nuget.exe
+
+# Test results
+**/TestResults/
+**/.testcoverage/
+**/coverage/
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+*.coverage
+*.coveragexml
+
+# Logs
+**/*.log
+**/logs/
+**/Logs/
+npm-debug.log*
+
+# Environment files
+**/.env
+**/.env.local
+**/.env.*.local
+!Docker/.env
+!.env.example
+!.env.staging.example
+!.env.production.example
+**/secrets.dev.yaml
+**/values.dev.yaml
+
+# Database files
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/*.sqlite
+**/*.sqlite3
+**/*.mdf
+**/*.ldf
+**/backups/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+Desktop.ini
+**/.DS_Store
+**/Thumbs.db
+
+# Node modules (if any)
+**/node_modules/
+**/npm-debug.log
+
+# Temporary files
+**/tmp/
+**/temp/
+**/*.tmp
+**/*.temp
+**/*.cache
+**/*.bak
+**/*.backup
+
+# Documentation (keep README only)
+*.md
+!README.md
+docs/
+LICENSE
+CHANGELOG.md
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+azure-pipelines.yml
+
+# Nginx (handled separately if needed)
+nginx/

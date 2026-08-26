@@ -1,0 +1,36 @@
+{
+  "Validation": {
+    "Required": "{0} مطلوب.",
+    "EmailInvalid": "البريد الإلكتروني غير صالح.",
+    "MinLength": "{0} يجب أن يكون على الأقل {1} أحرف.",
+    "MaxLength": "{0} يجب ألا يتجاوز {1} حرفًا.",
+    "PasswordTooWeak": "يجب أن تحتوي كلمة المرور على حرف كبير وحرف صغير ورقم ورمز خاص.",
+    "PasswordsDoNotMatch": "كلمتا المرور غير متطابقتين.",
+    "InvalidPhoneNumber": "رقم الجوال غير صالح.",
+    "MustBeGreaterThan": "{0} يجب أن يكون أكبر من {1}.",
+    "MustBeLessThan": "{0} يجب أن يكون أقل من {1}.",
+    "UsernamePattern": "اسم المستخدم يجب أن يحتوي على أحرف وأرقام وشرطات فقط.",
+    "IdMismatch": "المعرّف المُقدَّم لا يطابق المورد."
+  },
+  "Identity": {
+    "UsernameTaken": "اسم المستخدم هذا مستخدم بالفعل.",
+    "EmailAlreadyRegistered": "هذا البريد الإلكتروني مسجل بالفعل.",
+    "MobileNumberAlreadyRegistered": "رقم الجوال هذا مسجل بالفعل.",
+    "InvalidCredentials": "اسم المستخدم/البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+    "AccountInactive": "هذا الحساب غير مفعّل.",
+    "InvalidRefreshToken": "رمز التحديث غير صالح.",
+    "RefreshTokenNotActive": "رمز التحديث غير نشط.",
+    "TokenRevoked": "تم إلغاء الرمز مسبقًا.",
+    "UserNotFound": "المستخدم غير موجود.",
+    "UserNotAuthenticated": "المستخدم غير مصادق عليه."
+  },
+  "Common": {
+    "OperationSuccessful": "تمت العملية بنجاح.",
+    "OperationFailed": "فشلت العملية.",
+    "UnexpectedError": "حدث خطأ غير متوقع.",
+    "NotFound": "المورد غير موجود.",
+    "Unauthorized": "غير مصرح.",
+    "Forbidden": "ممنوع.",
+    "ValidationFailed": "فشل التحقق من الصحة."
+  }
+}

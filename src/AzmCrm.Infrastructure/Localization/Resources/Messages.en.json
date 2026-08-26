@@ -1,0 +1,36 @@
+{
+  "Validation": {
+    "Required": "{0} is required.",
+    "EmailInvalid": "Email address is not valid.",
+    "MinLength": "{0} must be at least {1} characters.",
+    "MaxLength": "{0} must not exceed {1} characters.",
+    "PasswordTooWeak": "Password must contain uppercase, lowercase, a digit, and a special character.",
+    "PasswordsDoNotMatch": "Passwords do not match.",
+    "InvalidPhoneNumber": "Mobile number is not valid.",
+    "MustBeGreaterThan": "{0} must be greater than {1}.",
+    "MustBeLessThan": "{0} must be less than {1}.",
+    "UsernamePattern": "Username may only contain letters, numbers, hyphens and underscores.",
+    "IdMismatch": "The provided ID does not match the resource."
+  },
+  "Identity": {
+    "UsernameTaken": "This username is already taken.",
+    "EmailAlreadyRegistered": "This email is already registered.",
+    "MobileNumberAlreadyRegistered": "This mobile number is already registered.",
+    "InvalidCredentials": "Invalid username/email or password.",
+    "AccountInactive": "This account is inactive.",
+    "InvalidRefreshToken": "Invalid refresh token.",
+    "RefreshTokenNotActive": "Refresh token is not active.",
+    "TokenRevoked": "Token has already been revoked.",
+    "UserNotFound": "User not found.",
+    "UserNotAuthenticated": "User is not authenticated."
+  },
+  "Common": {
+    "OperationSuccessful": "Operation completed successfully.",
+    "OperationFailed": "Operation failed.",
+    "UnexpectedError": "An unexpected error occurred.",
+    "NotFound": "Resource not found.",
+    "Unauthorized": "Unauthorized.",
+    "Forbidden": "Forbidden.",
+    "ValidationFailed": "Validation failed."
+  }
+}

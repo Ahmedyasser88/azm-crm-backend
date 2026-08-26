@@ -1,0 +1,83 @@
+services:
+  # ===========================================
+  # API Service
+  # ===========================================
+  api:
+    build:
+      context: ..
+      dockerfile: Docker/Dockerfile
+      args:
+        BUILD_CONFIGURATION: ${BUILD_CONFIGURATION:-Release}
+    container_name: azm-crm-api
+    ports:
+      - "${API_PORT:-5100}:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=${POSTGRES_HOST:-postgres};Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};SSL Mode=${POSTGRES_SSL_MODE:-Prefer}
+      - JwtSettings__Secret=${JWT_SECRET}
+      - JwtSettings__Issuer=${JWT_ISSUER:-AzmCrm}
+      - JwtSettings__Audience=${JWT_AUDIENCE:-AzmCrm}
+      - JwtSettings__ExpiryInMinutes=${JWT_EXPIRY_MINUTES:-120}
+      - Cors__AllowedOrigins__0=${CORS_ALLOWED_ORIGIN:-http://localhost:3100}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - azm-crm-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ===========================================
+  # PostgreSQL Database Service
+  # ===========================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: azm-crm-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - azm-crm-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    command:
+      - postgres
+      - -c
+      - shared_buffers=256MB
+      - -c
+      - max_connections=200
+      - -c
+      - effective_cache_size=1GB
+
+# ===========================================
+# Volumes
+# ===========================================
+volumes:
+  postgres_data:
+    driver: local
+    name: azm-crm-postgres-data
+
+# ===========================================
+# Networks
+# ===========================================
+networks:
+  azm-crm-network:
+    driver: bridge
+    name: azm-crm-network
