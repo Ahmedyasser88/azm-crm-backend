@@ -1,4 +1,5 @@
 using AzmCrm.Application.Shared.Interfaces;
+using AzmCrm.Domain.Features.Customers;
 using AzmCrm.Domain.Features.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -20,8 +21,12 @@ public sealed class ApplicationDbContext : IdentityDbContext<ApplicationUser, Id
     }
 
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<Customer> Customers => Set<Customer>();
+    public DbSet<CustomerInteraction> CustomerInteractions => Set<CustomerInteraction>();
+    public DbSet<CustomerNote> CustomerNotes => Set<CustomerNote>();
+    public DbSet<CustomerAttachment> CustomerAttachments => Set<CustomerAttachment>();
 
-    // Add DbSet properties here for new CRM aggregates (Customers, Leads, Deals, ...).
+    // Add DbSet properties here for new CRM aggregates (Leads, Deals, ...).
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

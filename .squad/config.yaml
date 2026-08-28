@@ -1,0 +1,13 @@
+version: 1
+project:
+  name: azm-crm-backend
+  primaryLanguage: C#
+  projectRoots:
+    - .
+tracker:
+  type: jira
+  workspace: https://ayasser5558.atlassian.net
+naming:
+  includeTrackerId: true
+  globalSequence: true
+agents: []

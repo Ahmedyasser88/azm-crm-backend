@@ -2,6 +2,7 @@ using AzmCrm.API.Settings;
 using AzmCrm.Application;
 using AzmCrm.Domain;
 using AzmCrm.Infrastructure;
+using System.Text.Json.Serialization;
 
 namespace AzmCrm.API.Extensions;
 
@@ -11,7 +12,9 @@ public static class ApplicationExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddControllers();
+        services.AddControllers()
+            .AddJsonOptions(options =>
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
         services.AddDomain();
         services.AddApplication();

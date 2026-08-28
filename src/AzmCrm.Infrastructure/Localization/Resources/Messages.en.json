@@ -10,7 +10,9 @@
     "MustBeGreaterThan": "{0} must be greater than {1}.",
     "MustBeLessThan": "{0} must be less than {1}.",
     "UsernamePattern": "Username may only contain letters, numbers, hyphens and underscores.",
-    "IdMismatch": "The provided ID does not match the resource."
+    "IdMismatch": "The provided ID does not match the resource.",
+    "InvalidValue": "{0} is not a valid value.",
+    "FileTooLarge": "File exceeds the maximum allowed size of {0} MB."
   },
   "Identity": {
     "UsernameTaken": "This username is already taken.",

@@ -15,6 +15,8 @@ public static class LocalizationKeys
         public const string MustBeLessThan = "Validation.MustBeLessThan";
         public const string UsernamePattern = "Validation.UsernamePattern";
         public const string IdMismatch = "Validation.IdMismatch";
+        public const string InvalidValue = "Validation.InvalidValue";
+        public const string FileTooLarge = "Validation.FileTooLarge";
     }
 
     public static class Identity

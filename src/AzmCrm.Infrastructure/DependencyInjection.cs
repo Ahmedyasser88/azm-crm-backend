@@ -4,6 +4,7 @@ using AzmCrm.Domain.Features.Identity;
 using AzmCrm.Infrastructure.Data;
 using AzmCrm.Infrastructure.Identity;
 using AzmCrm.Infrastructure.Localization;
+using AzmCrm.Infrastructure.Storage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -83,6 +84,10 @@ public static class DependencyInjection
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IDatabaseInitializer, DatabaseInitializer>();
         services.AddScoped<IIdentityQueryService, IdentityQueryService>();
+
+        services.Configure<FileStorageSettings>(configuration.GetSection(FileStorageSettings.SectionName));
+        services.AddScoped<IFileStorageService, LocalFileStorageService>();
+
         services.AddHttpContextAccessor();
 
         return services;
