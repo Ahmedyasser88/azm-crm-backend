@@ -1,3 +1,4 @@
+using AzmCrm.Domain.Features.Communications;
 using AzmCrm.Domain.Features.Customers;
 using AzmCrm.Domain.Features.Identity;
 using AzmCrm.Domain.Features.Tickets;
@@ -20,5 +21,7 @@ public interface IApplicationDbContext
     DbSet<CustomerAttachment> CustomerAttachments { get; }
     DbSet<Ticket> Tickets { get; }
     DbSet<TicketHistory> TicketHistories { get; }
+    DbSet<Conversation> Conversations { get; }
+    DbSet<Message> Messages { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

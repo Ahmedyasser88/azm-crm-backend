@@ -1,6 +1,7 @@
 using AzmCrm.Application.Localization;
 using AzmCrm.Application.Shared.Interfaces;
 using AzmCrm.Domain.Features.Identity;
+using AzmCrm.Infrastructure.Communications;
 using AzmCrm.Infrastructure.Data;
 using AzmCrm.Infrastructure.Identity;
 using AzmCrm.Infrastructure.Localization;
@@ -72,6 +73,25 @@ public static class DependencyInjection
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero
             };
+
+            // SignalR's browser client cannot attach an Authorization header to the WebSocket
+            // handshake, so it passes the JWT as an "access_token" query-string parameter
+            // instead — this is ASP.NET Core's documented pattern for authenticating a hub
+            // connection. Restricted to the /hubs path prefix so it never weakens how a normal
+            // REST Authorization header is validated for every other endpoint.
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    var accessToken = context.Request.Query["access_token"];
+                    var path = context.HttpContext.Request.Path;
+
+                    if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                        context.Token = accessToken;
+
+                    return Task.CompletedTask;
+                }
+            };
         });
 
         services.AddAuthorization();
@@ -87,6 +107,20 @@ public static class DependencyInjection
 
         services.Configure<FileStorageSettings>(configuration.GetSection(FileStorageSettings.SectionName));
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
+
+        services.Configure<SmtpSettings>(configuration.GetSection(SmtpSettings.SectionName));
+        services.AddScoped<IEmailSender, SmtpEmailSender>();
+        services.AddScoped<IChannelMessageSender, EmailChannelMessageSender>();
+
+        services.Configure<WhatsAppSettings>(configuration.GetSection(WhatsAppSettings.SectionName));
+        services.AddHttpClient<WhatsAppCloudApiProvider>();
+        services.AddScoped<IWhatsAppProvider>(provider => provider.GetRequiredService<WhatsAppCloudApiProvider>());
+        services.AddScoped<IChannelMessageSender, WhatsAppChannelMessageSender>();
+
+        services.Configure<SmsSettings>(configuration.GetSection(SmsSettings.SectionName));
+        services.AddHttpClient<SmsGatewayProvider>();
+        services.AddScoped<ISmsProvider>(provider => provider.GetRequiredService<SmsGatewayProvider>());
+        services.AddScoped<IChannelMessageSender, SmsChannelMessageSender>();
 
         services.AddHttpContextAccessor();
 

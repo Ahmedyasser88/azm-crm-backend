@@ -1,4 +1,5 @@
 using AzmCrm.Application.Shared.Interfaces;
+using AzmCrm.Domain.Features.Communications;
 using AzmCrm.Domain.Features.Customers;
 using AzmCrm.Domain.Features.Identity;
 using AzmCrm.Domain.Features.Tickets;
@@ -28,6 +29,8 @@ public sealed class ApplicationDbContext : IdentityDbContext<ApplicationUser, Id
     public DbSet<CustomerAttachment> CustomerAttachments => Set<CustomerAttachment>();
     public DbSet<Ticket> Tickets => Set<Ticket>();
     public DbSet<TicketHistory> TicketHistories => Set<TicketHistory>();
+    public DbSet<Conversation> Conversations => Set<Conversation>();
+    public DbSet<Message> Messages => Set<Message>();
 
     // Add DbSet properties here for new CRM aggregates (Leads, Deals, ...).
 
