@@ -1,4 +1,5 @@
 using AzmCrm.API.Extensions;
+using AzmCrm.API.Hubs;
 using AzmCrm.API.Middleware;
 using AzmCrm.Infrastructure.Data;
 using Serilog;
@@ -62,6 +63,7 @@ try
     app.UseAuthorization();
 
     app.MapControllers();
+    app.MapHub<ChatHub>("/hubs/chat");
 
     Log.Information("AzmCrm API started successfully");
     app.Run();

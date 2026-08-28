@@ -16,6 +16,13 @@ public static class ApplicationExtensions
             .AddJsonOptions(options =>
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
+        // SignalR's hub protocol has its own JSON serializer, separate from MVC's — without this,
+        // enums (e.g. MessageDto.Direction) serialize as integers over the hub while every REST
+        // response serializes them as strings via the JsonStringEnumConverter above.
+        services.AddSignalR()
+            .AddJsonProtocol(options =>
+                options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
         services.AddDomain();
         services.AddApplication();
         services.AddInfrastructure(configuration);
