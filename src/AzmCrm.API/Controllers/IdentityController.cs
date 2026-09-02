@@ -5,6 +5,7 @@ using AzmCrm.Application.Features.Identity.Commands.Register;
 using AzmCrm.Application.Features.Identity.Commands.RevokeToken;
 using AzmCrm.Application.Features.Identity.DTOs;
 using AzmCrm.Application.Features.Identity.Queries.GetCurrentUser;
+using AzmCrm.Application.Features.Identity.Queries.SearchAgents;
 using AzmCrm.Domain.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -97,6 +98,17 @@ public sealed class IdentityController(IMediator mediator) : ApiControllerBase
     {
         var query = new GetCurrentUserQuery();
         var result = await mediator.Send(query, ct);
+
+        return ToResult(result);
+    }
+
+    [HttpGet("agents")]
+    [Authorize]
+    [ProducesResponseType(typeof(Result<List<AgentSummaryDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> SearchAgents(
+        [FromQuery] string? search, [FromQuery] int pageSize = 10, CancellationToken ct = default)
+    {
+        var result = await mediator.Send(new SearchAgentsQuery(search, pageSize), ct);
 
         return ToResult(result);
     }
