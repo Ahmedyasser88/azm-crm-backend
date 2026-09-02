@@ -3,6 +3,7 @@ using AzmCrm.Domain.Features.Communications;
 using AzmCrm.Domain.Features.Customers;
 using AzmCrm.Domain.Features.Identity;
 using AzmCrm.Domain.Features.Automation;
+using AzmCrm.Domain.Features.KnowledgeBase;
 using AzmCrm.Domain.Features.QuickReplies;
 using AzmCrm.Domain.Features.Sla;
 using AzmCrm.Domain.Features.Tickets;
@@ -34,5 +35,7 @@ public interface IApplicationDbContext
     DbSet<SlaBreachNotification> SlaBreachNotifications { get; }
     DbSet<AssignmentRule> AssignmentRules { get; }
     DbSet<EscalationRule> EscalationRules { get; }
+    DbSet<KnowledgeArticle> KnowledgeArticles { get; }
+    DbSet<KnowledgeArticleStep> KnowledgeArticleSteps { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
