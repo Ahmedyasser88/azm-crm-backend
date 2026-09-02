@@ -3,7 +3,9 @@ using AzmCrm.Domain.Features.AgentTasks;
 using AzmCrm.Domain.Features.Communications;
 using AzmCrm.Domain.Features.Customers;
 using AzmCrm.Domain.Features.Identity;
+using AzmCrm.Domain.Features.Automation;
 using AzmCrm.Domain.Features.QuickReplies;
+using AzmCrm.Domain.Features.Sla;
 using AzmCrm.Domain.Features.Tickets;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -36,6 +38,10 @@ public sealed class ApplicationDbContext : IdentityDbContext<ApplicationUser, Id
     public DbSet<Message> Messages => Set<Message>();
     public DbSet<AgentTask> AgentTasks => Set<AgentTask>();
     public DbSet<QuickReplyTemplate> QuickReplyTemplates => Set<QuickReplyTemplate>();
+    public DbSet<SlaPolicy> SlaPolicies => Set<SlaPolicy>();
+    public DbSet<SlaBreachNotification> SlaBreachNotifications => Set<SlaBreachNotification>();
+    public DbSet<AssignmentRule> AssignmentRules => Set<AssignmentRule>();
+    public DbSet<EscalationRule> EscalationRules => Set<EscalationRule>();
 
     // Add DbSet properties here for new CRM aggregates (Leads, Deals, ...).
 

@@ -28,7 +28,8 @@ internal sealed class GetTicketByIdQueryHandler(
             ticket.Id, ticket.CustomerId, ticket.Title, ticket.Description, ticket.Category,
             ticket.Priority, ticket.Status, ticket.CreatedOn, ticket.UpdatedOn,
             ticket.AssignedToUserId, assignedToUserName,
-            ticket.IsEscalated, ticket.EscalatedOn);
+            ticket.IsEscalated, ticket.EscalatedOn,
+            ticket.SlaPolicyId, ticket.ResponseDueOn, ticket.ResolutionDueOn, ticket.RespondedOn);
 
         return Result<TicketDto>.Success(dto);
     }

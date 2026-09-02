@@ -2,7 +2,9 @@ using AzmCrm.Domain.Features.AgentTasks;
 using AzmCrm.Domain.Features.Communications;
 using AzmCrm.Domain.Features.Customers;
 using AzmCrm.Domain.Features.Identity;
+using AzmCrm.Domain.Features.Automation;
 using AzmCrm.Domain.Features.QuickReplies;
+using AzmCrm.Domain.Features.Sla;
 using AzmCrm.Domain.Features.Tickets;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -28,5 +30,9 @@ public interface IApplicationDbContext
     DbSet<Message> Messages { get; }
     DbSet<AgentTask> AgentTasks { get; }
     DbSet<QuickReplyTemplate> QuickReplyTemplates { get; }
+    DbSet<SlaPolicy> SlaPolicies { get; }
+    DbSet<SlaBreachNotification> SlaBreachNotifications { get; }
+    DbSet<AssignmentRule> AssignmentRules { get; }
+    DbSet<EscalationRule> EscalationRules { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

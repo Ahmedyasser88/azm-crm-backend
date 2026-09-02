@@ -1,4 +1,5 @@
 using AzmCrm.Domain.Features.Identity;
+using AzmCrm.Domain.Features.Sla;
 using AzmCrm.Domain.Features.Tickets;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -52,11 +53,17 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
             .IsRequired()
             .HasDefaultValue(false);
 
+        builder.HasOne<SlaPolicy>()
+            .WithMany()
+            .HasForeignKey(t => t.SlaPolicyId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         builder.HasQueryFilter(t => !t.IsDeleted);
 
         builder.HasIndex(t => t.CustomerId);
         builder.HasIndex(t => t.Status);
         builder.HasIndex(t => t.AssignedToUserId);
         builder.HasIndex(t => t.IsEscalated);
+        builder.HasIndex(t => t.SlaPolicyId);
     }
 }

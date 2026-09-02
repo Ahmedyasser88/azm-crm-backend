@@ -5,6 +5,7 @@ using AzmCrm.Infrastructure.Communications;
 using AzmCrm.Infrastructure.Data;
 using AzmCrm.Infrastructure.Identity;
 using AzmCrm.Infrastructure.Localization;
+using AzmCrm.Infrastructure.Sla;
 using AzmCrm.Infrastructure.Storage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -123,6 +124,9 @@ public static class DependencyInjection
         services.AddScoped<IChannelMessageSender, SmsChannelMessageSender>();
 
         services.AddHttpContextAccessor();
+
+        services.Configure<SlaMonitoringSettings>(configuration.GetSection(SlaMonitoringSettings.SectionName));
+        services.AddHostedService<SlaMonitoringBackgroundService>();
 
         return services;
     }

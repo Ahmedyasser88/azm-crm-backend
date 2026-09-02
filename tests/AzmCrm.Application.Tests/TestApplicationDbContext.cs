@@ -3,7 +3,9 @@ using AzmCrm.Domain.Features.AgentTasks;
 using AzmCrm.Domain.Features.Communications;
 using AzmCrm.Domain.Features.Customers;
 using AzmCrm.Domain.Features.Identity;
+using AzmCrm.Domain.Features.Automation;
 using AzmCrm.Domain.Features.QuickReplies;
+using AzmCrm.Domain.Features.Sla;
 using AzmCrm.Domain.Features.Tickets;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +26,10 @@ public sealed class TestApplicationDbContext(DbContextOptions<TestApplicationDbC
     public DbSet<Message> Messages => Set<Message>();
     public DbSet<AgentTask> AgentTasks => Set<AgentTask>();
     public DbSet<QuickReplyTemplate> QuickReplyTemplates => Set<QuickReplyTemplate>();
+    public DbSet<SlaPolicy> SlaPolicies => Set<SlaPolicy>();
+    public DbSet<SlaBreachNotification> SlaBreachNotifications => Set<SlaBreachNotification>();
+    public DbSet<AssignmentRule> AssignmentRules => Set<AssignmentRule>();
+    public DbSet<EscalationRule> EscalationRules => Set<EscalationRule>();
 
     // Mirrors the soft-delete query filters from the Infrastructure-layer *Configuration classes
     // (not referenced here) so handler tests exercise the same "deleted rows are invisible by
@@ -43,6 +49,10 @@ public sealed class TestApplicationDbContext(DbContextOptions<TestApplicationDbC
         modelBuilder.Entity<Message>().HasQueryFilter(m => !m.IsDeleted);
         modelBuilder.Entity<AgentTask>().HasQueryFilter(t => !t.IsDeleted);
         modelBuilder.Entity<QuickReplyTemplate>().HasQueryFilter(t => !t.IsDeleted);
+        modelBuilder.Entity<SlaPolicy>().HasQueryFilter(p => !p.IsDeleted);
+        modelBuilder.Entity<SlaBreachNotification>().HasQueryFilter(n => !n.IsDeleted);
+        modelBuilder.Entity<AssignmentRule>().HasQueryFilter(r => !r.IsDeleted);
+        modelBuilder.Entity<EscalationRule>().HasQueryFilter(r => !r.IsDeleted);
     }
 
     public static TestApplicationDbContext Create() =>

@@ -61,7 +61,8 @@ internal sealed class GetTicketsListQueryHandler(
             t.AssignedToUserId is not null && assigneeNames.TryGetValue(t.AssignedToUserId.Value, out var info)
                 ? info.FullName
                 : null,
-            t.IsEscalated, t.EscalatedOn));
+            t.IsEscalated, t.EscalatedOn,
+            t.SlaPolicyId, t.ResponseDueOn, t.ResolutionDueOn, t.RespondedOn));
 
         var result = new PaginatedResult<TicketListItemDto>
         {
