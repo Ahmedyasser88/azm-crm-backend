@@ -35,7 +35,9 @@ internal sealed class UpdateTicketCommandHandler(IApplicationDbContext dbContext
                 NewValue = request.Category.ToString()
             });
 
-        if (ticket.Priority != request.Priority)
+        var priorityChanged = ticket.Priority != request.Priority;
+
+        if (priorityChanged)
             dbContext.TicketHistories.Add(new TicketHistory
             {
                 TicketId = ticket.Id,
@@ -49,6 +51,28 @@ internal sealed class UpdateTicketCommandHandler(IApplicationDbContext dbContext
         ticket.Description = request.Description;
         ticket.Category = request.Category;
         ticket.Priority = request.Priority;
+
+        // Re-stamp SLA due dates against the new priority's active policy, mirroring
+        // CreateTicketCommandHandler's own lookup so a ticket's SLA tracking always reflects
+        // its current priority rather than staying pinned to whatever was active at creation.
+        if (priorityChanged)
+        {
+            var slaPolicy = await dbContext.SlaPolicies
+                .FirstOrDefaultAsync(p => p.Priority == request.Priority && p.IsActive, ct);
+
+            if (slaPolicy is not null)
+            {
+                ticket.SlaPolicyId = slaPolicy.Id;
+                ticket.ResponseDueOn = ticket.CreatedOn.AddMinutes(slaPolicy.ResponseTimeMinutes);
+                ticket.ResolutionDueOn = ticket.CreatedOn.AddMinutes(slaPolicy.ResolutionTimeMinutes);
+            }
+            else
+            {
+                ticket.SlaPolicyId = null;
+                ticket.ResponseDueOn = null;
+                ticket.ResolutionDueOn = null;
+            }
+        }
 
         await dbContext.SaveChangesAsync(ct);
 

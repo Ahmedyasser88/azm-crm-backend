@@ -15,5 +15,9 @@ public sealed record TicketDto(
     Guid? AssignedToUserId,
     string? AssignedToUserName,
     bool IsEscalated,
-    DateTime? EscalatedOn
+    DateTime? EscalatedOn,
+    Guid? SlaPolicyId,
+    DateTime? ResponseDueOn,
+    DateTime? ResolutionDueOn,
+    DateTime? RespondedOn
 );

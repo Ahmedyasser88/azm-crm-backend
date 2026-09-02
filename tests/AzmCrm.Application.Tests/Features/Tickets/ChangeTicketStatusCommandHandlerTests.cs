@@ -75,4 +75,35 @@ public class ChangeTicketStatusCommandHandlerTests
         await Assert.ThrowsAsync<NotFoundException>(
             () => handler.Handle(new ChangeTicketStatusCommand(Guid.NewGuid(), TicketStatus.Open), CancellationToken.None));
     }
+
+    [Fact]
+    public async Task Change_from_New_stamps_RespondedOn_once()
+    {
+        var (dbContext, ticket) = await SeedTicketAsync();
+        await using var _ = dbContext;
+
+        var handler = new ChangeTicketStatusCommandHandler(dbContext);
+
+        await handler.Handle(new ChangeTicketStatusCommand(ticket.Id, TicketStatus.InProgress), CancellationToken.None);
+
+        var persisted = await dbContext.Tickets.SingleAsync(t => t.Id == ticket.Id);
+        Assert.NotNull(persisted.RespondedOn);
+    }
+
+    [Fact]
+    public async Task Change_status_twice_away_from_New_does_not_overwrite_RespondedOn()
+    {
+        var (dbContext, ticket) = await SeedTicketAsync();
+        await using var _ = dbContext;
+
+        var handler = new ChangeTicketStatusCommandHandler(dbContext);
+
+        await handler.Handle(new ChangeTicketStatusCommand(ticket.Id, TicketStatus.InProgress), CancellationToken.None);
+        var firstRespondedOn = (await dbContext.Tickets.SingleAsync(t => t.Id == ticket.Id)).RespondedOn;
+
+        await handler.Handle(new ChangeTicketStatusCommand(ticket.Id, TicketStatus.OnHold), CancellationToken.None);
+        var secondRespondedOn = (await dbContext.Tickets.SingleAsync(t => t.Id == ticket.Id)).RespondedOn;
+
+        Assert.Equal(firstRespondedOn, secondRespondedOn);
+    }
 }

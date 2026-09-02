@@ -32,4 +32,25 @@ internal sealed class IdentityQueryService(UserManager<ApplicationUser> userMana
             u => u.Id,
             u => (u.FullName, u.Email ?? string.Empty));
     }
+
+    public async Task<List<(Guid Id, string FullName, string? Email)>> SearchAgentsAsync(
+        string? search, int take, CancellationToken ct = default)
+    {
+        var query = userManager.Users.AsNoTracking().Where(u => u.IsActive);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim().ToLower();
+            query = query.Where(u => u.FullName.ToLower().Contains(term) ||
+                                      (u.Email != null && u.Email.ToLower().Contains(term)));
+        }
+
+        var users = await query
+            .OrderBy(u => u.FullName)
+            .Take(take)
+            .Select(u => new { u.Id, u.FullName, u.Email })
+            .ToListAsync(ct);
+
+        return users.Select(u => (u.Id, u.FullName, u.Email)).ToList();
+    }
 }

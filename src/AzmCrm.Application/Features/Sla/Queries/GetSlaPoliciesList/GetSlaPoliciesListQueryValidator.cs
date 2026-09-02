@@ -1,0 +1,18 @@
+using AzmCrm.Application.Localization;
+using FluentValidation;
+
+namespace AzmCrm.Application.Features.Sla.Queries.GetSlaPoliciesList;
+
+public sealed class GetSlaPoliciesListQueryValidator : AbstractValidator<GetSlaPoliciesListQuery>
+{
+    public GetSlaPoliciesListQueryValidator(ILocalizationService localization)
+    {
+        RuleFor(x => x.PageNumber)
+            .GreaterThanOrEqualTo(1)
+            .WithMessage(localization[LocalizationKeys.Validation.MustBeGreaterThan, "Page Number", 0]);
+
+        RuleFor(x => x.PageSize)
+            .InclusiveBetween(1, 100)
+            .WithMessage("Page Size must be between 1 and 100.");
+    }
+}

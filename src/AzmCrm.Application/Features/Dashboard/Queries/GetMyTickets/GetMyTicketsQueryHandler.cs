@@ -37,6 +37,7 @@ internal sealed class GetMyTicketsQueryHandler(
 
         var items = tickets.Select(t => new DashboardTicketDto(
             t.Id, t.Title, t.Category, t.Priority, t.Status, t.CreatedOn, t.IsEscalated, t.EscalatedOn,
+            t.ResolutionDueOn,
             customers.TryGetValue(t.CustomerId, out var customer)
                 ? new CustomerSummaryDto(customer.Id, customer.FullName, customer.CompanyName, customer.Email, customer.PhoneNumber)
                 : null));

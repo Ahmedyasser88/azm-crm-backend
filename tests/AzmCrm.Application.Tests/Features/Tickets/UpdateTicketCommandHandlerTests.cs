@@ -1,6 +1,7 @@
 using AzmCrm.Application.Features.Tickets.Commands.UpdateTicket;
 using AzmCrm.Application.Shared.Exceptions;
 using AzmCrm.Domain.Features.Customers;
+using AzmCrm.Domain.Features.Sla;
 using AzmCrm.Domain.Features.Tickets;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -83,5 +84,73 @@ public class UpdateTicketCommandHandlerTests
 
         var history = await dbContext.TicketHistories.Where(h => h.TicketId == ticket.Id).ToListAsync();
         Assert.Empty(history);
+    }
+
+    [Fact]
+    public async Task Update_priority_change_with_matching_active_policy_restamps_sla_dates()
+    {
+        var (dbContext, ticket) = await SeedTicketAsync();
+        await using var _ = dbContext;
+
+        dbContext.SlaPolicies.Add(new SlaPolicy
+        {
+            Name = "Urgent policy",
+            Priority = TicketPriority.Urgent,
+            ResponseTimeMinutes = 5,
+            ResolutionTimeMinutes = 30
+        });
+        await dbContext.SaveChangesAsync();
+
+        var handler = new UpdateTicketCommandHandler(dbContext);
+
+        var command = new UpdateTicketCommand(
+            ticket.Id, ticket.Title, ticket.Description, ticket.Category, TicketPriority.Urgent);
+
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+
+        var persisted = await dbContext.Tickets.SingleAsync(t => t.Id == ticket.Id);
+        Assert.NotNull(persisted.SlaPolicyId);
+        Assert.Equal(persisted.CreatedOn.AddMinutes(5), persisted.ResponseDueOn);
+        Assert.Equal(persisted.CreatedOn.AddMinutes(30), persisted.ResolutionDueOn);
+    }
+
+    [Fact]
+    public async Task Update_priority_change_with_no_matching_policy_clears_sla_dates()
+    {
+        var (dbContext, ticket) = await SeedTicketAsync();
+        await using var _ = dbContext;
+
+        dbContext.SlaPolicies.Add(new SlaPolicy
+        {
+            Name = "High policy",
+            Priority = TicketPriority.High,
+            ResponseTimeMinutes = 5,
+            ResolutionTimeMinutes = 30
+        });
+        await dbContext.SaveChangesAsync();
+
+        // Ticket is seeded at High priority (matches the policy above); changing it to Low,
+        // which has no active policy, must clear the previously-stamped SLA fields.
+        var withSla = await dbContext.Tickets.SingleAsync(t => t.Id == ticket.Id);
+        withSla.SlaPolicyId = Guid.NewGuid();
+        withSla.ResponseDueOn = DateTime.UtcNow.AddMinutes(5);
+        withSla.ResolutionDueOn = DateTime.UtcNow.AddMinutes(30);
+        await dbContext.SaveChangesAsync();
+
+        var handler = new UpdateTicketCommandHandler(dbContext);
+
+        var command = new UpdateTicketCommand(
+            ticket.Id, ticket.Title, ticket.Description, ticket.Category, TicketPriority.Low);
+
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+
+        var persisted = await dbContext.Tickets.SingleAsync(t => t.Id == ticket.Id);
+        Assert.Null(persisted.SlaPolicyId);
+        Assert.Null(persisted.ResponseDueOn);
+        Assert.Null(persisted.ResolutionDueOn);
     }
 }

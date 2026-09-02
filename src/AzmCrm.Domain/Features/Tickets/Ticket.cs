@@ -14,6 +14,10 @@ public sealed class Ticket : BaseEntity
     public Guid? AssignedToUserId { get; set; }
     public bool IsEscalated { get; set; }
     public DateTime? EscalatedOn { get; set; }
+    public Guid? SlaPolicyId { get; set; }
+    public DateTime? ResponseDueOn { get; set; }
+    public DateTime? ResolutionDueOn { get; set; }
+    public DateTime? RespondedOn { get; set; }
 
     public Customer Customer { get; init; } = null!;
 }

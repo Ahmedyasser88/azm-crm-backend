@@ -26,6 +26,9 @@ internal sealed class ChangeTicketStatusCommandHandler(IApplicationDbContext dbC
                 NewValue = request.Status.ToString()
             });
 
+            if (ticket.RespondedOn is null && ticket.Status == TicketStatus.New)
+                ticket.RespondedOn = DateTime.UtcNow;
+
             ticket.Status = request.Status;
         }
 

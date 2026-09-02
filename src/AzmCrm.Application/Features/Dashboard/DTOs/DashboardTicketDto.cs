@@ -11,5 +11,6 @@ public sealed record DashboardTicketDto(
     DateTime CreatedOn,
     bool IsEscalated,
     DateTime? EscalatedOn,
+    DateTime? ResolutionDueOn,
     CustomerSummaryDto? Customer
 );
