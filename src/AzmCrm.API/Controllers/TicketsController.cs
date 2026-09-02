@@ -2,10 +2,12 @@ using AzmCrm.API.Controllers.Base;
 using AzmCrm.Application.Features.Tickets.Commands.AssignTicket;
 using AzmCrm.Application.Features.Tickets.Commands.ChangeTicketStatus;
 using AzmCrm.Application.Features.Tickets.Commands.CreateTicket;
+using AzmCrm.Application.Features.Tickets.Commands.CreateTicketComment;
 using AzmCrm.Application.Features.Tickets.Commands.EscalateTicket;
 using AzmCrm.Application.Features.Tickets.Commands.UpdateTicket;
 using AzmCrm.Application.Features.Tickets.DTOs;
 using AzmCrm.Application.Features.Tickets.Queries.GetTicketById;
+using AzmCrm.Application.Features.Tickets.Queries.GetTicketComments;
 using AzmCrm.Application.Features.Tickets.Queries.GetTicketHistory;
 using AzmCrm.Application.Features.Tickets.Queries.GetTicketsList;
 using AzmCrm.Application.Shared.Models;
@@ -106,6 +108,29 @@ public sealed class TicketsController(IMediator mediator) : ApiControllerBase
         Guid id, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20, CancellationToken ct = default)
     {
         var result = await mediator.Send(new GetTicketHistoryQuery(id, pageNumber, pageSize), ct);
+        return ToResult(result);
+    }
+
+    [HttpPost("{id:guid}/comments")]
+    [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AddComment(Guid id, [FromBody] CreateTicketCommentRequest request, CancellationToken ct)
+    {
+        var command = new CreateTicketCommentCommand(id, request.Content);
+
+        var result = await mediator.Send(command, ct);
+
+        return ToCreatedResult(result, commentId => $"/api/tickets/{id}/comments/{commentId}");
+    }
+
+    [HttpGet("{id:guid}/comments")]
+    [ProducesResponseType(typeof(Result<PaginatedResult<TicketCommentDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetComments(
+        Guid id, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20, CancellationToken ct = default)
+    {
+        var result = await mediator.Send(new GetTicketCommentsQuery(id, pageNumber, pageSize), ct);
         return ToResult(result);
     }
 }

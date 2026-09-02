@@ -1,6 +1,8 @@
+using AzmCrm.Domain.Features.AgentTasks;
 using AzmCrm.Domain.Features.Communications;
 using AzmCrm.Domain.Features.Customers;
 using AzmCrm.Domain.Features.Identity;
+using AzmCrm.Domain.Features.QuickReplies;
 using AzmCrm.Domain.Features.Tickets;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -21,7 +23,10 @@ public interface IApplicationDbContext
     DbSet<CustomerAttachment> CustomerAttachments { get; }
     DbSet<Ticket> Tickets { get; }
     DbSet<TicketHistory> TicketHistories { get; }
+    DbSet<TicketComment> TicketComments { get; }
     DbSet<Conversation> Conversations { get; }
     DbSet<Message> Messages { get; }
+    DbSet<AgentTask> AgentTasks { get; }
+    DbSet<QuickReplyTemplate> QuickReplyTemplates { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
