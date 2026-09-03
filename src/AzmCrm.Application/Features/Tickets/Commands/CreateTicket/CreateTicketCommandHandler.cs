@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AzmCrm.Application.Features.Tickets.Commands.CreateTicket;
 
-internal sealed class CreateTicketCommandHandler(IApplicationDbContext dbContext)
+internal sealed class CreateTicketCommandHandler(IApplicationDbContext dbContext, IIncomingTicketCategorizer categorizer)
     : IRequestHandler<CreateTicketCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CreateTicketCommand request, CancellationToken ct)
@@ -16,12 +16,18 @@ internal sealed class CreateTicketCommandHandler(IApplicationDbContext dbContext
         if (!customerExists)
             throw new NotFoundException($"Customer '{request.CustomerId}' was not found.");
 
+        // When the caller omits Category, classify it from Title/Description instead of
+        // requiring one — see Story 27 (KAN-7). CategorizeAsync never throws; it falls back to
+        // TicketCategory.General on any AI failure, so ticket creation is never blocked by it.
+        var category = request.Category
+            ?? await categorizer.CategorizeAsync(request.Title, request.Description, ct);
+
         var ticket = new Ticket
         {
             CustomerId = request.CustomerId,
             Title = request.Title,
             Description = request.Description,
-            Category = request.Category,
+            Category = category,
             Priority = request.Priority
         };
 
@@ -37,7 +43,7 @@ internal sealed class CreateTicketCommandHandler(IApplicationDbContext dbContext
 
         var assignmentRule = await dbContext.AssignmentRules
             .Where(r => r.IsActive)
-            .Where(r => r.Category == null || r.Category == request.Category)
+            .Where(r => r.Category == null || r.Category == category)
             .Where(r => r.Priority == null || r.Priority == request.Priority)
             .OrderBy(r => r.EvaluationOrder)
             .FirstOrDefaultAsync(ct);

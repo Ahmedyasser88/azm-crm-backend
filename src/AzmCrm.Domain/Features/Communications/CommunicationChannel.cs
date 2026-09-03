@@ -6,5 +6,6 @@ public enum CommunicationChannel
     WhatsApp,
     LiveChat,
     Sms,
-    WebForm
+    WebForm,
+    Chatbot
 }

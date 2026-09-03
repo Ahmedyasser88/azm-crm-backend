@@ -930,6 +930,13 @@ namespace AzmCrm.Infrastructure.Data.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AiSummary")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTime?>("AiSummaryGeneratedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid?>("AssignedToUserId")
                         .HasColumnType("uuid");
 

@@ -1,5 +1,6 @@
 using AzmCrm.Application.Features.Tickets.Commands.CreateTicket;
 using AzmCrm.Application.Shared.Exceptions;
+using AzmCrm.Application.Tests.TestDoubles;
 using AzmCrm.Domain.Features.Automation;
 using AzmCrm.Domain.Features.Customers;
 using AzmCrm.Domain.Features.Sla;
@@ -19,7 +20,7 @@ public class CreateTicketCommandHandlerTests
         dbContext.Customers.Add(customer);
         await dbContext.SaveChangesAsync();
 
-        var handler = new CreateTicketCommandHandler(dbContext);
+        var handler = new CreateTicketCommandHandler(dbContext, new StubIncomingTicketCategorizer());
 
         var command = new CreateTicketCommand(
             customer.Id, "Cannot log in", "User gets 401 on login", TicketCategory.Technical, TicketPriority.High);
@@ -44,7 +45,7 @@ public class CreateTicketCommandHandlerTests
     public async Task Create_for_missing_customer_throws_NotFoundException()
     {
         await using var dbContext = TestApplicationDbContext.Create();
-        var handler = new CreateTicketCommandHandler(dbContext);
+        var handler = new CreateTicketCommandHandler(dbContext, new StubIncomingTicketCategorizer());
 
         var command = new CreateTicketCommand(
             Guid.NewGuid(), "Cannot log in", null, TicketCategory.Technical, TicketPriority.High);
@@ -69,7 +70,7 @@ public class CreateTicketCommandHandlerTests
         dbContext.SlaPolicies.Add(policy);
         await dbContext.SaveChangesAsync();
 
-        var handler = new CreateTicketCommandHandler(dbContext);
+        var handler = new CreateTicketCommandHandler(dbContext, new StubIncomingTicketCategorizer());
 
         var command = new CreateTicketCommand(
             customer.Id, "Cannot log in", null, TicketCategory.Technical, TicketPriority.High);
@@ -92,7 +93,7 @@ public class CreateTicketCommandHandlerTests
         dbContext.Customers.Add(customer);
         await dbContext.SaveChangesAsync();
 
-        var handler = new CreateTicketCommandHandler(dbContext);
+        var handler = new CreateTicketCommandHandler(dbContext, new StubIncomingTicketCategorizer());
 
         var command = new CreateTicketCommand(
             customer.Id, "Cannot log in", null, TicketCategory.Technical, TicketPriority.Low);
@@ -123,7 +124,7 @@ public class CreateTicketCommandHandlerTests
         dbContext.AssignmentRules.Add(rule);
         await dbContext.SaveChangesAsync();
 
-        var handler = new CreateTicketCommandHandler(dbContext);
+        var handler = new CreateTicketCommandHandler(dbContext, new StubIncomingTicketCategorizer());
 
         var command = new CreateTicketCommand(
             customer.Id, "Invoice question", null, TicketCategory.Billing, TicketPriority.Low);
@@ -153,7 +154,7 @@ public class CreateTicketCommandHandlerTests
         });
         await dbContext.SaveChangesAsync();
 
-        var handler = new CreateTicketCommandHandler(dbContext);
+        var handler = new CreateTicketCommandHandler(dbContext, new StubIncomingTicketCategorizer());
 
         var command = new CreateTicketCommand(
             customer.Id, "Login issue", null, TicketCategory.Technical, TicketPriority.Low);
@@ -178,7 +179,7 @@ public class CreateTicketCommandHandlerTests
             new AssignmentRule { Name = "Low order", AssignedToUserId = lowOrderAgent, EvaluationOrder = 1 });
         await dbContext.SaveChangesAsync();
 
-        var handler = new CreateTicketCommandHandler(dbContext);
+        var handler = new CreateTicketCommandHandler(dbContext, new StubIncomingTicketCategorizer());
 
         var command = new CreateTicketCommand(
             customer.Id, "Generic", null, TicketCategory.General, TicketPriority.Low);
@@ -187,5 +188,75 @@ public class CreateTicketCommandHandlerTests
 
         var ticket = await dbContext.Tickets.SingleAsync(t => t.Id == result.Data);
         Assert.Equal(lowOrderAgent, ticket.AssignedToUserId);
+    }
+
+    [Fact]
+    public async Task Create_with_null_Category_calls_categorizer_and_persists_resolved_category()
+    {
+        await using var dbContext = TestApplicationDbContext.Create();
+        var customer = new Customer { FullName = "Acme Corp" };
+        dbContext.Customers.Add(customer);
+        await dbContext.SaveChangesAsync();
+
+        var categorizer = new StubIncomingTicketCategorizer { CategoryToReturn = TicketCategory.Billing };
+        var handler = new CreateTicketCommandHandler(dbContext, categorizer);
+
+        var command = new CreateTicketCommand(
+            customer.Id, "Invoice question", "Why was I charged twice?", null, TicketPriority.Low);
+
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        var ticket = await dbContext.Tickets.SingleAsync(t => t.Id == result.Data);
+        Assert.Equal(TicketCategory.Billing, ticket.Category);
+        Assert.Single(categorizer.Calls);
+    }
+
+    [Fact]
+    public async Task Create_with_explicit_Category_never_calls_categorizer()
+    {
+        await using var dbContext = TestApplicationDbContext.Create();
+        var customer = new Customer { FullName = "Acme Corp" };
+        dbContext.Customers.Add(customer);
+        await dbContext.SaveChangesAsync();
+
+        var categorizer = new StubIncomingTicketCategorizer();
+        var handler = new CreateTicketCommandHandler(dbContext, categorizer);
+
+        var command = new CreateTicketCommand(
+            customer.Id, "Cannot log in", null, TicketCategory.Technical, TicketPriority.Low);
+
+        await handler.Handle(command, CancellationToken.None);
+
+        Assert.Empty(categorizer.Calls);
+    }
+
+    [Fact]
+    public async Task Create_with_null_Category_uses_resolved_category_for_assignment_rule_matching()
+    {
+        await using var dbContext = TestApplicationDbContext.Create();
+        var customer = new Customer { FullName = "Acme Corp" };
+        dbContext.Customers.Add(customer);
+
+        var agentId = Guid.NewGuid();
+        dbContext.AssignmentRules.Add(new AssignmentRule
+        {
+            Name = "Billing rule",
+            Category = TicketCategory.Billing,
+            AssignedToUserId = agentId,
+            EvaluationOrder = 1
+        });
+        await dbContext.SaveChangesAsync();
+
+        var categorizer = new StubIncomingTicketCategorizer { CategoryToReturn = TicketCategory.Billing };
+        var handler = new CreateTicketCommandHandler(dbContext, categorizer);
+
+        var command = new CreateTicketCommand(
+            customer.Id, "Invoice question", null, null, TicketPriority.Low);
+
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        var ticket = await dbContext.Tickets.SingleAsync(t => t.Id == result.Data);
+        Assert.Equal(agentId, ticket.AssignedToUserId);
     }
 }

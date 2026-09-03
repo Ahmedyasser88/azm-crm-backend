@@ -3,7 +3,9 @@ using AzmCrm.Application.Features.Communications.Commands.CreateConversation;
 using AzmCrm.Application.Features.Communications.Commands.ReceiveInboundEmail;
 using AzmCrm.Application.Features.Communications.Commands.ReceiveInboundSms;
 using AzmCrm.Application.Features.Communications.Commands.ReceiveInboundWhatsAppMessage;
+using AzmCrm.Application.Features.Communications.Commands.SendChatbotMessage;
 using AzmCrm.Application.Features.Communications.Commands.SendMessage;
+using AzmCrm.Application.Features.Communications.Commands.StartAiChat;
 using AzmCrm.Application.Features.Communications.Commands.StartLiveChat;
 using AzmCrm.Application.Features.Communications.Commands.SubmitWebForm;
 using AzmCrm.Application.Features.Communications.DTOs;
@@ -179,5 +181,31 @@ public sealed class ConversationsController(
         var result = await mediator.Send(command, ct);
 
         return ToCreatedResult(result, id => $"/api/conversations/{id}");
+    }
+
+    [HttpPost("chatbot/start")]
+    [AllowAnonymous]
+    [EnableRateLimiting("fixed")]
+    [ProducesResponseType(typeof(Result<ChatbotReplyDto>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> StartAiChat([FromBody] StartAiChatRequest request, CancellationToken ct)
+    {
+        var command = new StartAiChatCommand(request.Name, request.Email, request.Body);
+
+        var result = await mediator.Send(command, ct);
+
+        return ToCreatedResult(result, dto => $"/api/conversations/{dto?.ConversationId}");
+    }
+
+    [HttpPost("chatbot/{id:guid}/messages")]
+    [AllowAnonymous]
+    [EnableRateLimiting("fixed")]
+    [ProducesResponseType(typeof(Result<ChatbotReplyDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SendChatbotMessage(Guid id, [FromBody] SendChatbotMessageRequest request, CancellationToken ct)
+    {
+        var result = await mediator.Send(new SendChatbotMessageCommand(id, request.Body), ct);
+        return ToResult(result);
     }
 }

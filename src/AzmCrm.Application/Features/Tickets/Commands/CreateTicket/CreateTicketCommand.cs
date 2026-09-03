@@ -8,6 +8,6 @@ public sealed record CreateTicketCommand(
     Guid CustomerId,
     string Title,
     string? Description,
-    TicketCategory Category,
+    TicketCategory? Category,
     TicketPriority Priority
 ) : IRequest<Result<Guid>>;

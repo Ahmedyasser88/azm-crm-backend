@@ -4,12 +4,16 @@ using AzmCrm.Application.Features.Tickets.Commands.ChangeTicketStatus;
 using AzmCrm.Application.Features.Tickets.Commands.CreateTicket;
 using AzmCrm.Application.Features.Tickets.Commands.CreateTicketComment;
 using AzmCrm.Application.Features.Tickets.Commands.EscalateTicket;
+using AzmCrm.Application.Features.Tickets.Commands.GenerateTicketSummary;
 using AzmCrm.Application.Features.Tickets.Commands.UpdateTicket;
 using AzmCrm.Application.Features.Tickets.DTOs;
+using AzmCrm.Application.Features.KnowledgeBase.DTOs;
 using AzmCrm.Application.Features.Tickets.Queries.GetTicketById;
 using AzmCrm.Application.Features.Tickets.Queries.GetTicketComments;
 using AzmCrm.Application.Features.Tickets.Queries.GetTicketHistory;
 using AzmCrm.Application.Features.Tickets.Queries.GetTicketsList;
+using AzmCrm.Application.Features.Tickets.Queries.SuggestKnowledgeArticlesForTicket;
+using AzmCrm.Application.Features.Tickets.Queries.SuggestTicketReply;
 using AzmCrm.Application.Shared.Models;
 using AzmCrm.Domain.Common;
 using AzmCrm.Domain.Features.Tickets;
@@ -131,6 +135,36 @@ public sealed class TicketsController(IMediator mediator) : ApiControllerBase
         Guid id, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20, CancellationToken ct = default)
     {
         var result = await mediator.Send(new GetTicketCommentsQuery(id, pageNumber, pageSize), ct);
+        return ToResult(result);
+    }
+
+    [HttpPost("{id:guid}/ai-summary")]
+    [ProducesResponseType(typeof(Result<TicketAiSummaryDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GenerateAiSummary(Guid id, CancellationToken ct)
+    {
+        var result = await mediator.Send(new GenerateTicketSummaryCommand(id), ct);
+        return ToResult(result);
+    }
+
+    [HttpGet("{id:guid}/suggested-reply")]
+    [ProducesResponseType(typeof(Result<TicketReplySuggestionDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SuggestReply(Guid id, CancellationToken ct)
+    {
+        var result = await mediator.Send(new SuggestTicketReplyQuery(id), ct);
+        return ToResult(result);
+    }
+
+    [HttpGet("{id:guid}/suggested-articles")]
+    [ProducesResponseType(typeof(Result<IReadOnlyList<KnowledgeArticlePublicListItemDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SuggestArticles(Guid id, [FromQuery] int maxResults = 5, CancellationToken ct = default)
+    {
+        var result = await mediator.Send(new SuggestKnowledgeArticlesForTicketQuery(id, maxResults), ct);
         return ToResult(result);
     }
 }

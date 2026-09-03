@@ -18,7 +18,8 @@ public sealed class CreateTicketCommandValidator : AbstractValidator<CreateTicke
             .MaximumLength(4000).WithMessage(localization[LocalizationKeys.Validation.MaxLength, "Description", 4000]);
 
         RuleFor(x => x.Category)
-            .IsInEnum().WithMessage(localization[LocalizationKeys.Validation.InvalidValue, "Category"]);
+            .IsInEnum().When(x => x.Category is not null)
+            .WithMessage(localization[LocalizationKeys.Validation.InvalidValue, "Category"]);
 
         RuleFor(x => x.Priority)
             .IsInEnum().WithMessage(localization[LocalizationKeys.Validation.InvalidValue, "Priority"]);
