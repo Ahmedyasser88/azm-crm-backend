@@ -49,4 +49,16 @@ public class CreateTicketCommandValidatorTests
 
         Assert.True(result.IsValid);
     }
+
+    [Fact]
+    public void Null_Category_passes()
+    {
+        // Category is optional as of Story 27 (KAN-7) — omitting it triggers AI auto-categorization
+        // in CreateTicketCommandHandler rather than failing validation.
+        var command = new CreateTicketCommand(Guid.NewGuid(), "Title", null, null, TicketPriority.Low);
+
+        var result = Validator.Validate(command);
+
+        Assert.True(result.IsValid);
+    }
 }

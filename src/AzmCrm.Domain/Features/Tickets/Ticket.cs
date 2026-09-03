@@ -18,6 +18,8 @@ public sealed class Ticket : BaseEntity
     public DateTime? ResponseDueOn { get; set; }
     public DateTime? ResolutionDueOn { get; set; }
     public DateTime? RespondedOn { get; set; }
+    public string? AiSummary { get; set; }
+    public DateTime? AiSummaryGeneratedOn { get; set; }
 
     public Customer Customer { get; init; } = null!;
 }

@@ -6,6 +6,6 @@ public sealed record CreateTicketRequest(
     Guid CustomerId,
     string Title,
     string? Description,
-    TicketCategory Category,
+    TicketCategory? Category,
     TicketPriority Priority
 );

@@ -24,6 +24,9 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
         builder.Property(t => t.Description)
             .HasMaxLength(4000);
 
+        builder.Property(t => t.AiSummary)
+            .HasMaxLength(2000);
+
         builder.Property(t => t.Category)
             .HasConversion<string>()
             .HasMaxLength(30)

@@ -2,6 +2,7 @@ using AzmCrm.Application.Features.Tickets.Commands.CreateTicket;
 using AzmCrm.Application.Features.Tickets.Commands.UpdateTicket;
 using AzmCrm.Application.Features.Tickets.Queries.GetTicketHistory;
 using AzmCrm.Application.Shared.Exceptions;
+using AzmCrm.Application.Tests.TestDoubles;
 using AzmCrm.Domain.Features.Customers;
 using AzmCrm.Domain.Features.Tickets;
 using Xunit;
@@ -59,7 +60,7 @@ public class GetTicketHistoryQueryHandlerTests
         dbContext.Customers.Add(customer);
         await dbContext.SaveChangesAsync();
 
-        var createHandler = new CreateTicketCommandHandler(dbContext);
+        var createHandler = new CreateTicketCommandHandler(dbContext, new StubIncomingTicketCategorizer());
         var createResult = await createHandler.Handle(
             new CreateTicketCommand(customer.Id, "Ticket", null, TicketCategory.General, TicketPriority.Low),
             CancellationToken.None);

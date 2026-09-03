@@ -1,6 +1,7 @@
 using AzmCrm.Application.Localization;
 using AzmCrm.Application.Shared.Interfaces;
 using AzmCrm.Domain.Features.Identity;
+using AzmCrm.Infrastructure.AiFeatures;
 using AzmCrm.Infrastructure.Communications;
 using AzmCrm.Infrastructure.Data;
 using AzmCrm.Infrastructure.Identity;
@@ -127,6 +128,11 @@ public static class DependencyInjection
 
         services.Configure<SlaMonitoringSettings>(configuration.GetSection(SlaMonitoringSettings.SectionName));
         services.AddHostedService<SlaMonitoringBackgroundService>();
+
+        services.Configure<OpenAiSettings>(configuration.GetSection(OpenAiSettings.SectionName));
+        services.AddHttpClient<OpenAiClient>();
+        services.AddScoped<IAiClient>(provider => provider.GetRequiredService<OpenAiClient>());
+        services.AddScoped<IIncomingTicketCategorizer, AiIncomingTicketCategorizer>();
 
         return services;
     }

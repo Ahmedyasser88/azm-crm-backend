@@ -19,5 +19,7 @@ public sealed record TicketDto(
     Guid? SlaPolicyId,
     DateTime? ResponseDueOn,
     DateTime? ResolutionDueOn,
-    DateTime? RespondedOn
+    DateTime? RespondedOn,
+    string? AiSummary,
+    DateTime? AiSummaryGeneratedOn
 );
