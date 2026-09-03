@@ -45,6 +45,25 @@ export JwtSettings__Secret="<a long random string, 32+ chars>"
 export ConnectionStrings__DefaultConnection="Host=localhost;Database=AzmCrm;Username=postgres;Password=<your-password>"
 ```
 
+### AI features (KAN-7)
+
+Ticket summaries, suggested replies, auto-categorization, and the chatbot all go through the
+`IAiClient` abstraction (`OpenAiClient`, configured under the `OpenAi` section), which speaks the
+standard OpenAI chat-completions API shape.
+
+- **Local development** (`appsettings.Development.json`) points at [Ollama](https://ollama.com)
+  running locally — free, no API key. Install it, then pull a model:
+  ```bash
+  ollama pull llama3.2
+  ```
+  Ollama serves an OpenAI-compatible endpoint at `http://localhost:11434/v1` out of the box; the
+  `ApiKey` value is a placeholder Ollama ignores. Swap `"Model"` for whatever you've pulled
+  (`phi3`, `mistral`, etc.) if you'd rather use a different one.
+- **Production** (`appsettings.json`) still points at `https://api.openai.com/v1` with a
+  `CHANGE_ME_OpenAiApiKey` placeholder — set a real key via user-secrets/environment variable
+  (`OpenAi__ApiKey`) the same way as `JwtSettings:Secret` above, or point `OpenAi:ApiBaseUrl` at
+  any other OpenAI-compatible provider (e.g. Groq, OpenRouter).
+
 ## Running
 
 ```bash
